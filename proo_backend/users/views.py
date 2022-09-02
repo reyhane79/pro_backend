@@ -1,3 +1,82 @@
-from django.shortcuts import render
 
 # Create your views here.
+import requests
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.authtoken.models import Token
+
+from users.models import CustomUser
+from users.serializers import CustomUserSerializer, ShopSerializer, CostumerSerializer
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register(request):
+    serializer = CustomUserSerializer(data=request.data)
+
+    if serializer.is_valid():
+        user = serializer.save()
+        if 'is_shop' in request.POST:
+            shop_serializer = ShopSerializer(data=request.data,
+                                             context={'user': user})
+            if shop_serializer.is_valid():
+                shop_serializer.save()
+                return Response(shop_serializer.data)
+            else:
+                user.delete()
+                return Response(shop_serializer.errors)
+        elif 'is_customer' in request.POST:
+            customer_serializer = CostumerSerializer(data=request.data,
+                                                     context={'user': user})
+            if customer_serializer.is_valid():
+                customer_serializer.save()
+                return Response(customer_serializer.data)
+            else:
+                user.delete()
+                return Response(customer_serializer.errors)
+    else:
+        return Response(serializer.errors)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login(request):
+    response = dict()
+    try:
+        user = CustomUser.objects.get(phone=request.POST.get('phone'))
+        if user.check_password(request.POST.get('password')):
+            user.is_active = True
+            user.save()
+            token, created = Token.objects.get_or_create(user=user)
+            response['token'] = token.key
+        else:
+            response['message'] = 'password is incorrect'
+
+        return Response(response)
+    except CustomUser.DoesNotExist:
+        response['message'] = 'user with this phone not exist'
+        return Response(response)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    user = request.user
+    Token.objects.filter(user=user).delete()
+    user.is_active = False
+    user.save()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    user = request.user
+    if user.check_password(request.POST.get('password')):
+        user.set_password(request.POST.get('new_password'))
+        user.save()
+        return Response({'message': 'password changed'})
+    else:
+        return Response({'message': 'password is incorrect'})
