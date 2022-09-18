@@ -39,7 +39,7 @@ class Shop(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     address = models.CharField(max_length=50)
     logo = models.ImageField(upload_to='./users/logo/')
-    delivery_cost = models.IntegerField(default=0)
+    delivery_cost = models.FloatField(default=0)
     start_time = models.TimeField(null=False)
     end_time = models.TimeField(null=False)
     score = models.FloatField(default=0)
