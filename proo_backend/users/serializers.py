@@ -21,13 +21,14 @@ class ShopSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shop
-        fields = ['address', 'delivery_cost', 'start_time', 'end_time']
+        fields = ['address', 'delivery_cost', 'start_time', 'end_time', 'name']
 
     def save(self, **kwargs):
         shop = Shop(address=self.validated_data['address'],
                     delivery_cost=self.validated_data['delivery_cost'],
                     start_time=self.validated_data['start_time'],
                     end_time=self.validated_data['end_time'],
+                    name=self.validated_data['name'],
                     user=self.context.get('user'))
         shop.save()
         return shop
@@ -45,3 +46,9 @@ class CostumerSerializer(serializers.ModelSerializer):
         customer.save()
         return customer
 
+
+class GetShopSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Shop
+        fields = ['address', 'logo', 'delivery_cost', 'score', 'start_time', 'end_time', 'name', 'id']

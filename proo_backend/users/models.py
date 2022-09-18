@@ -37,6 +37,7 @@ class Customer(models.Model):
 
 class Shop(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    name = models.CharField(max_length=30, default='بدون نام', null=False, blank=False)
     address = models.CharField(max_length=50)
     logo = models.ImageField(upload_to='./users/logo/')
     delivery_cost = models.FloatField(default=0)

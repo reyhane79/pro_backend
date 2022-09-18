@@ -7,8 +7,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 
-from users.models import CustomUser
-from users.serializers import CustomUserSerializer, ShopSerializer, CostumerSerializer
+from users.models import CustomUser, Shop
+from users.serializers import CustomUserSerializer, ShopSerializer, CostumerSerializer, GetShopSerializer
 
 
 @api_view(['POST'])
@@ -82,4 +82,9 @@ def change_password(request):
         return Response({'message': 'password is incorrect'})
 
 
-
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_shop_list(request):
+    shop = Shop.objects.all()
+    serializer = GetShopSerializer(shop, many=True)
+    return Response(serializer.data)
