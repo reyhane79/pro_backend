@@ -4,8 +4,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from product.models import Product
-from product.serializer import AddProductSerializer, GetProductSerializer
+from product.models import Product, ItemCategory, Item
+from product.serializer import AddProductSerializer, GetProductSerializer, AddItemCategorySerializer, AddItemSerializer, \
+    GetItemCategorySerializer, GetItemSerializer
 from users.models import Shop, CustomUser
 
 
@@ -25,12 +26,12 @@ def add_product(request):
         return Response(serializer.errors)
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_product(request):
     user = CustomUser.objects.get(id=request.user.id)
     if user.is_customer:
-        products = Product.objects.all()
+        products = Product.objects.filter(shop_id=request.POST.get('shop'))
         serializer = GetProductSerializer(products, many=True)
         return Response(serializer.data)
     else:
@@ -39,3 +40,42 @@ def get_product(request):
         serializer = GetProductSerializer(products, many=True)
         return Response(serializer.data)
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_item_category(request):
+    serializer = AddItemCategorySerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    else:
+        return Response(serializer.errors)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_item(request):
+    serializer = AddItemSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    else:
+        return Response(serializer.errors)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def get_item_category(request):
+    categories = ItemCategory.objects.filter(product=request.POST.get('product'))
+    serializer = GetItemCategorySerializer(categories, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def get_items(request):
+    categories = Item.objects.filter(category=request.POST.get('category'))
+    serializer = GetItemSerializer(categories, many=True)
+    return Response(serializer.data)

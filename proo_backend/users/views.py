@@ -22,6 +22,8 @@ def register(request):
             shop_serializer = ShopSerializer(data=request.data,
                                              context={'user': user})
             if shop_serializer.is_valid():
+                user.is_sailor = True
+                user.save()
                 shop_serializer.save()
                 return Response(shop_serializer.data)
             else:
@@ -31,6 +33,8 @@ def register(request):
             customer_serializer = CostumerSerializer(data=request.data,
                                                      context={'user': user})
             if customer_serializer.is_valid():
+                user.is_customer = True
+                user.save()
                 customer_serializer.save()
                 return Response(customer_serializer.data)
             else:
