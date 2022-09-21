@@ -25,8 +25,9 @@ class Order(models.Model):
     state = models.BooleanField(default=False)
     tracking_code = models.CharField(blank=False, max_length=100, null=True)
     stage = models.CharField(choices=stages, default=1, max_length=25)
-    minimum_delivery_time = models.DateTimeField(null=False, blank=False)
-    max_delivery_time = models.DateTimeField(null=False, blank=False)
+    minimum_delivery_time = models.DateTimeField(null=True, blank=False)
+    max_delivery_time = models.DateTimeField(null=True, blank=False)
+    price = models.FloatField(default=0)
 
 
 class OrderProduct(models.Model):

@@ -27,5 +27,6 @@ class Item(models.Model):
     category = models.ForeignKey(ItemCategory, on_delete=models.CASCADE)
     title = models.CharField(max_length=30, null=False, blank=False)
     description = models.CharField(max_length=100, null=True)
+    is_available = models.BooleanField(default=True)
 
 
