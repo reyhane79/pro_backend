@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from shop.models import  OrderItem
+from shop.models import OrderItem, Order
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -14,3 +14,10 @@ class OrderItemSerializer(serializers.ModelSerializer):
                                item=self.validated_data['item'])
         order_item.save()
         return order_item
+
+
+class GetOrderSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = '__all__'
