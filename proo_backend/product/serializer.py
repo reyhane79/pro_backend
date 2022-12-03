@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from product.models import Product, ItemCategory, Item, ProductCategory
+from users.serializers import GetShopSerializer
 
 
 class AddProductSerializer(serializers.ModelSerializer):
@@ -27,6 +28,7 @@ class GetProductCategorySerializer(serializers.ModelSerializer):
 
 
 class GetProductSerializer(serializers.ModelSerializer):
+    shop = GetShopSerializer()
 
     class Meta:
         model = Product

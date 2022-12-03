@@ -39,15 +39,15 @@ def get_product_categories(request):
 def get_product(request):
     user = CustomUser.objects.get(id=request.user.id)
     if user.is_customer:
-        if 'category' in request.POST:
-            products = Product.objects.filter(shop_id=request.POST.get('shop'),
-                                              category_id=request.POST.get('category'))
-            serializer = GetProductSerializer(products, many=True)
-            return Response(serializer.data)
-        else:
+        if 'shop' in request.POST:
             products = Product.objects.filter(shop_id=request.POST.get('shop'))
-            serializer = GetProductSerializer(products, many=True)
-            return Response(serializer.data)
+        else:
+            products = Product.objects.all()
+        if 'category' in request.POST:
+            products = products.filter(category_id=request.POST.get('category'))
+        serializer = GetProductSerializer(products, many=True)
+        return Response(serializer.data)
+
     else:
         shop = Shop.objects.get(user=user)
         products = Product.objects.filter(shop=shop)
