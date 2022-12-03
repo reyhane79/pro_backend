@@ -48,6 +48,14 @@ def add_order_product(request):
             return Response({'error': 'out of stock'})
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def remove_order_product(request):
+    order_product = OrderProduct.objects.get(id=request.POST.get('order_product'))
+    order_product.delete()
+    return Response(status=status.HTTP_200_OK)
+
+
 # for customizing product items
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -64,6 +72,14 @@ def add_order_item(request):
             return Response(serializer.errors)
     else:
         return Response({'error': 'item not available'})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def remove_order_item(request):
+    item = Item.objects.get(id=request.POST.get('order_item'))
+    item.delete()
+    return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
