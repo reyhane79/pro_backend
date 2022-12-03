@@ -66,6 +66,14 @@ def add_order_item(request):
         return Response({'error': 'item not available'})
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_cart(request):
+    order = Order.objects.get(user=request.user, state=False)
+    serializer = GetOrderSerializer(order)
+    return Response(serializer.data)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def finish_order(request):

@@ -4,9 +4,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from product.models import Product, ItemCategory, Item
+from product.models import Product, ItemCategory, Item, ProductCategory
 from product.serializer import AddProductSerializer, GetProductSerializer, AddItemCategorySerializer, AddItemSerializer, \
-    GetItemCategorySerializer, GetItemSerializer
+    GetItemCategorySerializer, GetItemSerializer, GetProductCategorySerializer
 from users.models import Shop, CustomUser
 
 
@@ -26,14 +26,28 @@ def add_product(request):
         return Response(serializer.errors)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_product_categories(request):
+    categories = ProductCategory.objects.all()
+    serializer = GetProductCategorySerializer(categories, many=True)
+    return Response(serializer.data)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_product(request):
     user = CustomUser.objects.get(id=request.user.id)
     if user.is_customer:
-        products = Product.objects.filter(shop_id=request.POST.get('shop'))
-        serializer = GetProductSerializer(products, many=True)
-        return Response(serializer.data)
+        if 'category' in request.POST:
+            products = Product.objects.filter(shop_id=request.POST.get('shop'),
+                                              category_id=request.POST.get('category'))
+            serializer = GetProductSerializer(products, many=True)
+            return Response(serializer.data)
+        else:
+            products = Product.objects.filter(shop_id=request.POST.get('shop'))
+            serializer = GetProductSerializer(products, many=True)
+            return Response(serializer.data)
     else:
         shop = Shop.objects.get(user=user)
         products = Product.objects.filter(shop=shop)

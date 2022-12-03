@@ -1,6 +1,5 @@
 
 # Create your views here.
-import requests
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -8,7 +7,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 
 from users.models import CustomUser, Shop
-from users.serializers import CustomUserSerializer, ShopSerializer, CostumerSerializer, GetShopSerializer
+from users.serializers import CustomUserSerializer, ShopSerializer, CostumerSerializer, GetShopSerializer, \
+    GetUserSerializer
 
 
 @api_view(['POST'])
@@ -92,3 +92,14 @@ def get_shop_list(request):
     shop = Shop.objects.all()
     serializer = GetShopSerializer(shop, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_info(request):
+    user = CustomUser.objects.get(id=request.user.id)
+    if user.is_customer:
+        serializer = GetUserSerializer(user)
+        return Response(serializer.data)
+    elif user.is_sailor:
+        pass

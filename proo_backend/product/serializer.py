@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from product.models import Product, ItemCategory, Item
+from product.models import Product, ItemCategory, Item, ProductCategory
 
 
 class AddProductSerializer(serializers.ModelSerializer):
@@ -17,6 +17,13 @@ class AddProductSerializer(serializers.ModelSerializer):
                           category=self.validated_data['category'])
         product.save()
         return product
+
+
+class GetProductCategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductCategory
+        fields = ['id', 'title', 'icon']
 
 
 class GetProductSerializer(serializers.ModelSerializer):

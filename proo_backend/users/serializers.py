@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from shop.models import Wallet
 from users.models import CustomUser, Shop, Customer
 
 
@@ -52,3 +53,16 @@ class GetShopSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shop
         fields = ['address', 'logo', 'delivery_cost', 'score', 'start_time', 'end_time', 'name', 'id']
+
+
+class GetUserSerializer(serializers.ModelSerializer):
+    wallet = serializers.SerializerMethodField('get_wallet')
+
+    @staticmethod
+    def get_wallet(self):
+        wallet = Wallet.objects.get(user=self)
+        return wallet.credit
+
+    class Meta:
+        model = CustomUser
+        fields = ['name', 'phone', 'wallet', 'id']
