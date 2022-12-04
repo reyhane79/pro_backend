@@ -39,3 +39,4 @@ class OrderItem(models.Model):
     order_product = models.ForeignKey(OrderProduct, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
 
+

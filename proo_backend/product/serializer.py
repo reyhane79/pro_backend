@@ -61,15 +61,22 @@ class AddItemSerializer(serializers.ModelSerializer):
         return item
 
 
-class GetItemCategorySerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = ItemCategory
-        fields = ['id', 'title']
-
-
 class GetItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
         fields = ['id', 'title', 'description']
+
+
+class GetItemCategorySerializer(serializers.ModelSerializer):
+    items = serializers.SerializerMethodField('get_items')
+
+    @staticmethod
+    def get_items(category):
+        items = Item.objects.filter(category=category)
+        return GetItemSerializer(items, many=True).data
+
+    class Meta:
+        model = ItemCategory
+        fields = ['id', 'title', 'items']
+
