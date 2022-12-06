@@ -40,3 +40,12 @@ class OrderItem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
 
 
+class Comment(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    content = models.TextField(max_length=200, null=False, blank=False)
+    score = models.FloatField()
+
+
+class Reply(models.Model):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, unique=True)
+    content = models.TextField(max_length=200, null=False, blank=False)

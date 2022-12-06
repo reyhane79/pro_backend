@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from product.serializer import GetProductSerializer, GetItemSerializer
-from shop.models import OrderItem, Order, OrderProduct
+from shop.models import OrderItem, Order, OrderProduct, Comment, Reply
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -52,3 +52,53 @@ class GetOrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['price', 'id', 'max_delivery_time', 'minimum_delivery_time', 'state', 'tracking_code',
                   'order_products']
+
+
+class AddCommentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Comment
+        fields = ['order', 'content', 'score']
+
+    def save(self, **kwargs):
+        comment = Comment(order=self.validated_data['order'],
+                          content=self.validated_data['content'],
+                          score=self.validated_data['score'])
+        comment.save()
+        return comment
+
+
+class GetReplySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Reply
+        fields = ['id', 'content']
+
+
+class GetCommentSerializer(serializers.ModelSerializer):
+    reply = serializers.SerializerMethodField('get_reply')
+
+    @staticmethod
+    def get_reply(comment):
+        try:
+            reply = Reply.objects.get(comment=comment)
+            return GetReplySerializer(reply)
+        except Reply.DoesNotExist:
+            return 0
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'score', 'content', 'reply']
+
+
+class AddReplySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Reply
+        fields = ['comment', 'content']
+
+    def save(self, **kwargs):
+        reply = Reply(content=self.validated_data['content'],
+                      comment=self.validated_data['comment'])
+        reply.save()
+        return reply

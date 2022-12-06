@@ -4,8 +4,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from product.models import Product, Item
-from shop.models import Order, OrderProduct, Wallet
-from shop.serializer import OrderItemSerializer, GetOrderSerializer
+from shop.models import Order, OrderProduct, Wallet, Comment
+from shop.serializer import OrderItemSerializer, GetOrderSerializer, AddCommentSerializer, AddReplySerializer, \
+    GetCommentSerializer
 
 # for adding a product to shopping list
 from users.models import CustomUser, Shop
@@ -85,9 +86,12 @@ def remove_order_item(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_cart(request):
-    order = Order.objects.get(user=request.user, state=False)
-    serializer = GetOrderSerializer(order)
-    return Response(serializer.data)
+    try:
+        order = Order.objects.get(user=request.user, state=False)
+        serializer = GetOrderSerializer(order)
+        return Response(serializer.data)
+    except Order.DoesNotExist:
+        return Response({})
 
 
 @api_view(['POST'])
@@ -154,3 +158,43 @@ def change_order_stage_by_customer(request):
         order.stage = 6
     order.save()
     return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_comment(request):
+    serializer = AddCommentSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    else:
+        return Response(serializer.errors)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_reply(request):
+    serializer = AddReplySerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    else:
+        return Response(serializer.errors)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def get_comments(request):
+    user = CustomUser.objects.get(id=request.user.id)
+
+    if user.is_customer:
+        comments = Comment.objects.filter(order__orderproduct__product__shop_id=request.POST.get('shop'))
+        serializer = GetCommentSerializer(comments, many=True)
+        return Response(serializer.data)
+    else:
+        shop = Shop.objects.get(user=user)
+        comments = Comment.objects.filter(order__orderproduct__product__shop_id=shop.id)
+        serializer = GetCommentSerializer(comments, many=True)
+        return Response(serializer.data)
