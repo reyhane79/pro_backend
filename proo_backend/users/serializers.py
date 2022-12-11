@@ -1,6 +1,7 @@
+from django.db.models import Avg
 from rest_framework import serializers
 
-from shop.models import Wallet
+from shop.models import Wallet, Comment
 from users.models import CustomUser, Shop, Customer
 
 
@@ -49,10 +50,15 @@ class CostumerSerializer(serializers.ModelSerializer):
 
 
 class GetShopSerializer(serializers.ModelSerializer):
+    score = serializers.SerializerMethodField('get_score')
+
+    def get_score(self, shop):
+        score = Comment.objects.filter(order__orderproduct__product__shop_id=shop.id).aggregate(Avg('score'))
+        return score
 
     class Meta:
         model = Shop
-        fields = ['address', 'logo', 'delivery_cost', 'score', 'start_time', 'end_time', 'name', 'id']
+        fields = ['address', 'logo', 'delivery_cost', 'score', 'start_time', 'end_time', 'name', 'id', 'score']
 
 
 class GetUserSerializer(serializers.ModelSerializer):
@@ -66,3 +72,6 @@ class GetUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['name', 'phone', 'wallet', 'id']
+
+
+

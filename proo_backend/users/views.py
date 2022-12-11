@@ -55,6 +55,10 @@ def login(request):
             user.save()
             token, created = Token.objects.get_or_create(user=user)
             response['token'] = token.key
+            if user.is_customer:
+                response['user_type'] = 'customer'
+            else:
+                response['user_type'] = 'shop'
         else:
             response['message'] = 'password is incorrect'
 
@@ -102,4 +106,6 @@ def get_info(request):
         serializer = GetUserSerializer(user)
         return Response(serializer.data)
     elif user.is_sailor:
-        pass
+        shop = Shop.objects.get(user=user)
+        serializer = GetShopSerializer(shop)
+        return Response(serializer.data)

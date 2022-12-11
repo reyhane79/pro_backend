@@ -41,6 +41,21 @@ class GetOrderProductSerializer(serializers.ModelSerializer):
 
 class GetOrderSerializer(serializers.ModelSerializer):
     order_products = serializers.SerializerMethodField('get_order_products')
+    stage = serializers.SerializerMethodField('get_stage')
+
+    def get_stage(self, order):
+        if order.stage == '1':
+            return 'تکمیل نشده'
+        if order.stage == '2':
+            return 'در انتظار تایید فروشگاه'
+        if order.stage == '3':
+            return 'در حال آماده سازی'
+        if order.stage == '4':
+            return 'در حال ارسال'
+        if order.stage == '5':
+            return 'دریافت شده'
+        if order.stage == '6':
+            return 'دریافت نشده'
 
     @staticmethod
     def get_order_products(order):
@@ -51,7 +66,7 @@ class GetOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['price', 'id', 'max_delivery_time', 'minimum_delivery_time', 'state', 'tracking_code',
-                  'order_products']
+                  'order_products', 'stage']
 
 
 class AddCommentSerializer(serializers.ModelSerializer):
@@ -82,9 +97,11 @@ class GetCommentSerializer(serializers.ModelSerializer):
     def get_reply(comment):
         try:
             reply = Reply.objects.get(comment=comment)
-            return GetReplySerializer(reply)
+            return GetReplySerializer(reply).data
         except Reply.DoesNotExist:
-            return 0
+            return {
+                'content': ''
+            }
 
     class Meta:
         model = Comment

@@ -1,5 +1,6 @@
 
 # Create your views here.
+from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -26,6 +27,21 @@ def add_product(request):
         return Response(serializer.errors)
 
 
+@api_view(['POST'])
+def change_product_info(request):
+    product = Product.objects.get(id=request.POST.get('product'))
+    if 'title' in request.POST:
+        product.title = request.POST.get('title')
+    if 'description' in request.POST:
+        product.title = request.POST.get('description')
+    if 'price' in request.POST:
+        product.title = request.POST.get('price')
+    if 'stock' in request.POST:
+        product.title = request.POST.get('stock')
+    product.save()
+    return Response(status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_product_categories(request):
@@ -50,7 +66,8 @@ def get_product(request):
 
     else:
         shop = Shop.objects.get(user=user)
-        products = Product.objects.filter(shop=shop)
+        products = Product.objects.filter(shop=shop,
+                                          category_id=request.POST.get('category'))
         serializer = GetProductSerializer(products, many=True)
         return Response(serializer.data)
 

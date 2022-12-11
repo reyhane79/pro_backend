@@ -109,10 +109,10 @@ def finish_order(request):
         wallet.save()
         return Response({'message': 'خرید با موفقیت انجام شد'})
     else:
-        return Response({'message': 'موجودی کیف پول کافی نیست'})
+        return Response({'error': 'موجودی کیف پول کافی نیست'})
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_orders(request):
     user = CustomUser.objects.get(id=request.user.id)
@@ -122,7 +122,10 @@ def get_orders(request):
 
     else:
         shop = Shop.objects.get(user=user)
-        orders = Order.objects.filter(orderproduct__product__shop=shop)
+        orders = Order.objects.filter(orderproduct__product__shop=shop,
+                                      state=True).distinct()
+        if 'stage' in request.POST:
+            orders = orders.filter(stage=request.POST.get('stage'))
 
     serializer = GetOrderSerializer(orders, many=True)
     return Response(serializer.data)

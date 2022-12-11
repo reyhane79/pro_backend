@@ -61,11 +61,19 @@ class AddItemSerializer(serializers.ModelSerializer):
         return item
 
 
+class GetCategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ItemCategory
+        fields = ['id', 'title']
+
+
 class GetItemSerializer(serializers.ModelSerializer):
+    category = GetCategorySerializer()
 
     class Meta:
         model = Item
-        fields = ['id', 'title', 'description']
+        fields = ['id', 'title', 'description', 'category']
 
 
 class GetItemCategorySerializer(serializers.ModelSerializer):
