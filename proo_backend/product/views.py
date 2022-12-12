@@ -28,16 +28,17 @@ def add_product(request):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def change_product_info(request):
     product = Product.objects.get(id=request.POST.get('product'))
     if 'title' in request.POST:
         product.title = request.POST.get('title')
     if 'description' in request.POST:
-        product.title = request.POST.get('description')
+        product.description = request.POST.get('description')
     if 'price' in request.POST:
-        product.title = request.POST.get('price')
+        product.price = request.POST.get('price')
     if 'stock' in request.POST:
-        product.title = request.POST.get('stock')
+        product.stock = request.POST.get('stock')
     product.save()
     return Response(status=status.HTTP_200_OK)
 

@@ -39,10 +39,10 @@ class Shop(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     name = models.CharField(max_length=30, default='بدون نام', null=False, blank=False)
     address = models.CharField(max_length=50)
-    logo = models.ImageField(upload_to='./users/logo/')
+    logo = models.ImageField(upload_to='./shop_image/')
     delivery_cost = models.FloatField(default=0)
-    start_time = models.TimeField(null=False)
-    end_time = models.TimeField(null=False)
+    start_time = models.TimeField(null=True)
+    end_time = models.TimeField(null=True)
     score = models.FloatField(default=0)
 
 

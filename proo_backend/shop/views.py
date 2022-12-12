@@ -22,9 +22,10 @@ def add_order_product(request):
         if OrderProduct.objects.filter(order=order).first().product.shop == product.shop:
             if product.stock > 0:
                 order_product = OrderProduct(order=order,
-                                             product_id=request.POST.get('product'))
+                                             product_id=request.POST.get('product'),
+                                             count=request.POST.get('count'))
                 order_product.save()
-                order.price += product.price
+                order.price += product.price * float(order_product.count)
                 order.save()
                 return Response({'order_product': order_product.id})
             else:
@@ -40,9 +41,10 @@ def add_order_product(request):
 
         if product.stock > 0:
             order_product = OrderProduct(order=order,
-                                         product_id=request.POST.get('product'))
+                                         product_id=request.POST.get('product'),
+                                         count=request.POST.get('count'))
             order_product.save()
-            order.price += product.price
+            order.price += product.price * float(order_product.count)
             order.save()
             return Response({'order_product': order_product.id})
         else:
@@ -98,7 +100,8 @@ def get_cart(request):
 @permission_classes([IsAuthenticated])
 def finish_order(request):
     order = Order.objects.get(user=request.user, state=False)
-
+    order.price += OrderProduct.objects.filter(order=order).first().product.shop.delivery_cost
+    order.save()
     wallet = Wallet.objects.get(user=request.user)
     if wallet.credit >= order.price:
         order.state = True
@@ -198,6 +201,6 @@ def get_comments(request):
         return Response(serializer.data)
     else:
         shop = Shop.objects.get(user=user)
-        comments = Comment.objects.filter(order__orderproduct__product__shop_id=shop.id)
+        comments = Comment.objects.filter(order__orderproduct__product__shop_id=shop.id).distinct()
         serializer = GetCommentSerializer(comments, many=True)
         return Response(serializer.data)

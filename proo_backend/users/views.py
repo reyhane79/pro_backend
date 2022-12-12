@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 
+from shop.models import Wallet
 from users.models import CustomUser, Shop
 from users.serializers import CustomUserSerializer, ShopSerializer, CostumerSerializer, GetShopSerializer, \
     GetUserSerializer
@@ -36,6 +37,8 @@ def register(request):
                 user.is_customer = True
                 user.save()
                 customer_serializer.save()
+                wallet = Wallet(user=user, credit=1000000)
+                wallet.save()
                 return Response(customer_serializer.data)
             else:
                 user.delete()
@@ -90,10 +93,12 @@ def change_password(request):
         return Response({'message': 'password is incorrect'})
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_shop_list(request):
     shop = Shop.objects.all()
+    if 'search' in request.POST:
+        shop = shop.filter(user__name__contains=request.POST.get('search'))
     serializer = GetShopSerializer(shop, many=True)
     return Response(serializer.data)
 
@@ -109,3 +114,9 @@ def get_info(request):
         shop = Shop.objects.get(user=user)
         serializer = GetShopSerializer(shop)
         return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_token(request):
+    return Response(status=status.HTTP_200_OK)

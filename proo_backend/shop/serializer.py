@@ -36,12 +36,26 @@ class GetOrderProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderProduct
-        fields = ['product', 'id', 'items']
+        fields = ['product', 'id', 'items', 'count']
 
 
 class GetOrderSerializer(serializers.ModelSerializer):
     order_products = serializers.SerializerMethodField('get_order_products')
     stage = serializers.SerializerMethodField('get_stage')
+    comment = serializers.SerializerMethodField('get_comment')
+
+    def get_comment(self, order):
+        try:
+            comment = Comment.objects.get(order=order)
+            serializer = GetCommentSerializer(comment)
+            return serializer.data
+        except Comment.DoesNotExist:
+            return {
+                'content': '',
+                'reply': {
+                    'content' : ''
+                    }
+            }
 
     def get_stage(self, order):
         if order.stage == '1':
@@ -66,7 +80,7 @@ class GetOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['price', 'id', 'max_delivery_time', 'minimum_delivery_time', 'state', 'tracking_code',
-                  'order_products', 'stage']
+                  'order_products', 'stage', 'comment']
 
 
 class AddCommentSerializer(serializers.ModelSerializer):

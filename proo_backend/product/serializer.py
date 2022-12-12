@@ -8,13 +8,14 @@ class AddProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['title', 'price', 'stock', 'category']
+        fields = ['title', 'price', 'stock', 'category', 'image']
 
     def save(self, **kwargs):
         product = Product(shop=self.context.get('shop'),
                           title=self.validated_data['title'],
                           price=self.validated_data['price'],
                           stock=self.validated_data['stock'],
+                          image=self.validated_data['image'],
                           category=self.validated_data['category'])
         product.save()
         return product
@@ -32,7 +33,7 @@ class GetProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['title', 'price', 'stock', 'description', 'id', 'shop', 'category']
+        fields = ['title', 'price', 'stock', 'description', 'id', 'shop', 'category', 'image']
 
 
 class AddItemCategorySerializer(serializers.ModelSerializer):

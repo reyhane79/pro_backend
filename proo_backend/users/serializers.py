@@ -23,14 +23,13 @@ class ShopSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shop
-        fields = ['address', 'delivery_cost', 'start_time', 'end_time', 'name']
+        fields = ['address', 'delivery_cost', 'name', 'logo']
 
     def save(self, **kwargs):
         shop = Shop(address=self.validated_data['address'],
                     delivery_cost=self.validated_data['delivery_cost'],
-                    start_time=self.validated_data['start_time'],
-                    end_time=self.validated_data['end_time'],
                     name=self.validated_data['name'],
+                    logo=self.validated_data['logo'],
                     user=self.context.get('user'))
         shop.save()
         return shop
