@@ -98,7 +98,7 @@ def change_password(request):
 def get_shop_list(request):
     shop = Shop.objects.all()
     if 'search' in request.POST:
-        shop = shop.filter(user__name__contains=request.POST.get('search'))
+        shop = shop.filter(name__contains=request.POST.get('search'))
     serializer = GetShopSerializer(shop, many=True)
     return Response(serializer.data)
 

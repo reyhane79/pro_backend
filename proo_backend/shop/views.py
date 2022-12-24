@@ -196,7 +196,7 @@ def get_comments(request):
     user = CustomUser.objects.get(id=request.user.id)
 
     if user.is_customer:
-        comments = Comment.objects.filter(order__orderproduct__product__shop_id=request.POST.get('shop'))
+        comments = Comment.objects.filter(order__orderproduct__product__shop_id=request.POST.get('shop')).distinct()
         serializer = GetCommentSerializer(comments, many=True)
         return Response(serializer.data)
     else:
